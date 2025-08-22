@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const User = require('../../models/userModel'); // Corrected path for src folder
 const { protect } = require('../middleware/auth');
@@ -15,100 +16,101 @@ function generateRefreshToken(user) {
 }
 
 // Register user
-router.post('/register', async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    // Check if user exists
-    const userExists = await User.findOne({ email });
-    if (userExists) {
-      return res.status(400).json({ message: 'User already exists' });
+router.post(
+  '/register',
+  [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-
-    // Create user
-    const user = await User.create({
-      name,
-      email,
-      password
-    });
-
-    // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-    res.status(201).json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role: user.role,
-      isAdmin: user.role === 'admin',
-      profileImage: user.profileImage,
-      accessToken
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Server error', error: error.message });
+    try {
+      const { name, email, password } = req.body;
+      const userExists = await User.findOne({ email });
+      if (userExists) {
+        return res.status(400).json({ message: 'User already exists' });
+      }
+      const user = await User.create({ name, email, password });
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      res.status(201).json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        isAdmin: user.role === 'admin',
+        profileImage: user.profileImage,
+        accessToken
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
+    }
   }
-});
+);
 
 // Login user
-router.post('/login', async (req, res) => {
-  try {
-    console.log('Login request body:', req.body);
-    const { email, password } = req.body;
-
-    // Check for user
-    const user = await User.findOne({ email }).select('+password');
-    console.log('User found:', !!user);
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+router.post(
+  '/login',
+  [
+    body('email').isEmail().withMessage('Valid email is required'),
+    body('password').notEmpty().withMessage('Password is required')
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-
-    // Check password
-    const isMatch = await user.matchPassword(password);
-    console.log('Password match:', isMatch);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+    try {
+      const { email, password } = req.body;
+      const user = await User.findOne({ email }).select('+password');
+      if (!user) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) {
+        return res.status(401).json({ message: 'Invalid credentials' });
+      }
+      let isAdmin = user.role === 'admin';
+      let role = user.role;
+      if (user.email === 'ojomiracle20@gmail.com') {
+        isAdmin = true;
+        role = 'admin';
+        user.isAdmin = true;
+        user.role = 'admin';
+        await user.save();
+      }
+      const accessToken = generateAccessToken(user);
+      const refreshToken = generateRefreshToken(user);
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+      });
+      res.json({
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role,
+        isAdmin,
+        profileImage: user.profileImage,
+        accessToken
+      });
+    } catch (error) {
+      res.status(500).json({ message: 'Server error', error: error.message });
     }
-
-    // Force admin for ojomiracle20@gmail.com
-    let isAdmin = user.role === 'admin';
-    let role = user.role;
-    if (user.email === 'ojomiracle20@gmail.com') {
-      isAdmin = true;
-      role = 'admin';
-      user.isAdmin = true;
-      user.role = 'admin';
-      await user.save();
-    }
-
-    // Generate tokens
-    const accessToken = generateAccessToken(user);
-    const refreshToken = generateRefreshToken(user);
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
-    });
-    res.json({
-      _id: user._id,
-      name: user.name,
-      email: user.email,
-      role,
-      isAdmin,
-      profileImage: user.profileImage,
-      accessToken
-    });
-  } catch (error) {
-    console.error('Login error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
   }
-});
+);
 
 // Refresh token endpoint
 router.post('/refresh', async (req, res) => {

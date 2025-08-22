@@ -8,6 +8,7 @@ require('dotenv').config({
 
 const express = require('express');
 const helmet = require('helmet');
+const compression = require('compression');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
@@ -60,6 +61,8 @@ const recentlyViewedRoutes = require('./src/routes/recentlyViewed');
 
 
 const app = express();
+// Use compression for better performance
+app.use(compression());
 app.set('trust proxy', 1);
 
 // Disable x-powered-by header for security
