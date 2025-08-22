@@ -28,9 +28,9 @@ const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const { user, isLoading, isError, isSuccess, message } = useSelector(
+  const { isLoading, isError, isSuccess, message } = useSelector(
     (state) => state.auth
-  );
+  ); // Removed unused 'user' variable
 
   useEffect(() => {
     AOS.init({ duration: 900, once: true, offset: 40 });

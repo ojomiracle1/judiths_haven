@@ -56,7 +56,7 @@ const AdminDashboard = () => {
   const [yearlyTotals, setYearlyTotals] = useState({});
   const [inventoryStats, setInventoryStats] = useState({});
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
-  const [selectedTimeframe, setSelectedTimeframe] = useState('yearly');
+  // const [selectedTimeframe, setSelectedTimeframe] = useState('yearly'); // Removed unused variables
   const { user } = useSelector((state) => state.auth);
   const { t } = useTranslation();
 
@@ -89,36 +89,36 @@ const AdminDashboard = () => {
       setStatsError('');
       try {
         const year = selectedYear;
+        // Fetch sales stats
         const salesRes = await api.get(`/api/sales-stats/yearly?year=${year}`);
         setSalesStats(salesRes.data || []);
-        
+
         // Get yearly totals
         const totalsRes = await api.get(`/api/sales-stats/total?year=${year}`);
         setYearlyTotals(totalsRes.data || { totalSales: 0, totalOrders: 0 });
-        
+
+        // Fetch users and group by month
         const usersRes = await api.get('/api/users');
-        // Group users by month
         const usersByMonth = Array(12).fill(0);
         usersRes.data.forEach(u => {
           const d = new Date(u.createdAt);
           if (d.getFullYear() === year) usersByMonth[d.getMonth()]++;
         });
         setUserStats(usersByMonth);
-        
+
         // Fetch top products
         const topProductsRes = await api.get(`/api/orders/aggregate/top-products?year=${year}`);
         setTopProducts(topProductsRes.data || []);
-        
+
         // Fetch sales by category
         const catSalesRes = await api.get(`/api/orders/aggregate/sales-by-category?year=${year}`);
         setCategorySales(catSalesRes.data || []);
-        
+
         // Calculate inventory statistics
         const inStock = products.filter(p => p.countInStock > 0).length;
         const outOfStock = products.filter(p => p.countInStock === 0).length;
         const lowStock = products.filter(p => p.countInStock > 0 && p.countInStock <= 5).length;
         const totalInventoryValue = products.reduce((sum, p) => sum + (p.price * p.countInStock), 0);
-        
         setInventoryStats({
           inStock,
           outOfStock,
@@ -126,13 +126,14 @@ const AdminDashboard = () => {
           totalValue: totalInventoryValue
         });
       } catch (err) {
-        setStatsError('Failed to load analytics');
+        setStatsError('Failed to fetch analytics data');
       } finally {
         setStatsLoading(false);
       }
     };
     fetchStats();
-  }, [dispatch, user]);
+    // Added 'products' and 'selectedYear' to dependency array to fix missing dependencies warning
+  }, [products, selectedYear]);
 
   if (usersLoading || productsLoading || ordersLoading) return <Spinner />
   

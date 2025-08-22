@@ -18,14 +18,14 @@ const Home = () => {
   const dispatch = useDispatch();
   const { products, isLoading: productsLoading } = useSelector((state) => state.product);
   const { categories, isLoading: categoriesLoading } = useSelector((state) => state.category);
-  const [topRated, setTopRated] = useState([]);
+  // const [topRated, setTopRated] = useState([]); // Removed unused variable to fix build warning
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
 
   useEffect(() => {
     dispatch(getProducts());
     dispatch(getCategories());
-    api.get('/api/products/top/rated').then(res => setTopRated(res.data)).catch(() => {});
+    // api.get('/api/products/top/rated').then(res => setTopRated(res.data)).catch(() => {}); // Removed unused API call
   }, [dispatch]);
 
   useEffect(() => {
