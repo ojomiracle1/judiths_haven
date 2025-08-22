@@ -232,11 +232,16 @@ app.use(passport.session());
 app.get('/api/health', (req, res) => {
   res.json({
     status: 'OK',
-    message: 'Judith\'s Haven Backend is running',
+    message: "Judith's Haven Backend is running",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
     version: '1.0.0'
   });
+});
+
+// Root route for friendly response
+app.get('/', (req, res) => {
+  res.send('Backend is running ✅');
 });
 
 // Apply rate limiting to specific endpoints
