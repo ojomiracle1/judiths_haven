@@ -2,16 +2,14 @@ require('dotenv').config({
   path: process.env.NODE_ENV === 'test' ? __dirname + '/.env.test' : __dirname + '/.env'
 });
 
-// Debug: Check if environment variables are loaded
-// console.log('Environment Variables:');
-// console.log('NODE_ENV:', process.env.NODE_ENV);
-// console.log('PORT:', process.env.PORT);
-// console.log('MONGODB_URI:', process.env.MONGODB_URI ? 'URI is set' : 'URI is undefined');
-// console.log('JWT_SECRET:', process.env.JWT_SECRET ? 'Secret is set' : 'Secret is undefined');
+
 
 
 
 const express = require('express');
+const helmet = require('helmet');
+const hpp = require('hpp');
+const csurf = require('csurf');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -59,8 +57,62 @@ const adminAnalyticsRoutes = require('./src/routes/adminAnalytics');
 const recommendationsRoutes = require('./src/routes/recommendations');
 const recentlyViewedRoutes = require('./src/routes/recentlyViewed');
 
+
 const app = express();
 app.set('trust proxy', 1);
+
+// Disable x-powered-by header for security
+app.disable('x-powered-by');
+
+
+// Use Helmet for secure HTTP headers
+app.use(helmet({
+  contentSecurityPolicy: process.env.NODE_ENV === 'production'
+    ? {
+        directives: {
+          defaultSrc: ["'self'"],
+          scriptSrc: ["'self'", 'https://judiths-haven-frontend.onrender.com', 'https://apis.google.com'],
+          styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://judiths-haven-frontend.onrender.com', "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', 'https://judiths-haven-frontend.onrender.com'],
+          fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+          connectSrc: ["'self'", 'https://judiths-haven-frontend.onrender.com', 'https://judiths-haven-backend.onrender.com', 'wss://judiths-haven-backend.onrender.com'],
+          objectSrc: ["'none'"],
+          frameSrc: ["'self'", 'https://accounts.google.com'],
+          upgradeInsecureRequests: [],
+        },
+      }
+    : false // Allow relaxed CSP in dev
+}));
+
+
+// Prevent HTTP Parameter Pollution
+app.use(hpp());
+
+// CSRF Protection (enabled for non-API, non-GET/HEAD/OPTIONS requests)
+if (process.env.NODE_ENV === 'production') {
+  app.use(
+    csurf({
+      cookie: {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'strict',
+      },
+      ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
+    })
+  );
+  // Expose CSRF token for frontend (if needed)
+  app.use((req, res, next) => {
+    if (req.csrfToken) {
+      res.cookie('XSRF-TOKEN', req.csrfToken(), {
+        httpOnly: false,
+        secure: true,
+        sameSite: 'strict',
+      });
+    }
+    next();
+  });
+}
+
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
@@ -71,19 +123,19 @@ const io = socketio(server, {
 });
 
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+  // logger.info(`New client connected: ${socket.id}`); // Uncomment for production logging if needed
   socket.on('joinOrderRoom', (orderId) => {
     socket.join(orderId);
   });
   socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+  // logger.info(`Client disconnected: ${socket.id}`); // Uncomment for production logging if needed
   });
 });
 
 app.set('io', io);
 
 // Enhanced Security Middleware (Order matters!)
-app.use(securityHeaders); // Security headers first
+app.use(securityHeaders); // Custom security headers
 app.use(mongoSanitization); // MongoDB injection protection
 app.use(sanitizeInput); // Input sanitization
 app.use(mongoSanitize());
@@ -127,6 +179,10 @@ app.use(cors(corsOptions));
 app.use(morgan('combined', {
   stream: {
     write: (message) => logger.http(message.trim())
+  },
+  skip: function () {
+    // In production, skip logging health checks to reduce noise
+    return process.env.NODE_ENV === 'production';
   }
 }));
 
@@ -145,7 +201,7 @@ if (!require('fs').existsSync(uploadsDir)) {
 
 // Session middleware for passport (use MongoDB store in production)
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'keyboard cat',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -217,17 +273,41 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
 // 404 handler - must be before error handler
 app.use(notFound);
 
-// Error handling middleware - must be last
-app.use(errorHandler);
 
-// HTTPS enforcement middleware for production
+
+// Error handling middleware - must be last
+app.use((err, req, res, next) => {
+  // CSRF error handler
+  if (err.code === 'EBADCSRFTOKEN') {
+    logger.warn('Invalid CSRF token');
+    return res.status(403).json({ message: 'Invalid CSRF token' });
+  }
+  // Hide stack traces in production
+  if (process.env.NODE_ENV === 'production') {
+    logger.error(err.message);
+    return res.status(err.status || 500).json({
+      message: err.message || 'Internal Server Error'
+    });
+  }
+  // In development, show stack
+  return errorHandler(err, req, res, next);
+});
+
+
+// HTTPS enforcement middleware for production (should be before routes)
 if (process.env.NODE_ENV === 'production') {
   app.use((req, res, next) => {
-    if (req.headers['x-forwarded-proto'] !== 'https') {
+    if (req.headers['x-forwarded-proto'] && req.headers['x-forwarded-proto'] !== 'https') {
       return res.redirect('https://' + req.headers.host + req.url);
     }
     next();
   });
+}
+
+
+// Warn if critical environment variables are missing
+if (!process.env.SESSION_SECRET || !process.env.MONGODB_URI) {
+  logger.warn('SESSION_SECRET or MONGODB_URI is not set. Please check your environment variables.');
 }
 
 if (process.env.NODE_ENV !== 'test') {
