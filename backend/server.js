@@ -9,6 +9,7 @@ require('dotenv').config({
 const express = require('express');
 const helmet = require('helmet');
 const hpp = require('hpp');
+const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -88,6 +89,9 @@ app.use(helmet({
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
+// Cookie parser must be before csurf
+app.use(cookieParser());
+
 // CSRF Protection (enabled for non-API, non-GET/HEAD/OPTIONS requests)
 if (process.env.NODE_ENV === 'production') {
   app.use(
@@ -110,6 +114,10 @@ if (process.env.NODE_ENV === 'production') {
       });
     }
     next();
+  });
+  // Add endpoint to get CSRF token
+  app.get('/api/csrf-token', (req, res) => {
+    res.json({ csrfToken: req.csrfToken() });
   });
 }
 
