@@ -55,7 +55,7 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, thunkAPI) => {
     try {
-      const response = await api.post('/api/users/register', userData);
+  const response = await api.post('/api/auth/register', userData);
       const normalized = normalizeUser(response.data);
       localStorage.setItem('user', JSON.stringify(normalized));
       return normalized;
@@ -72,7 +72,7 @@ export const login = createAsyncThunk(
   'auth/login',
   async (userData, thunkAPI) => {
     try {
-      const response = await api.post('/api/users/login', userData);
+  const response = await api.post('/api/auth/login', userData);
       const token = response.data.token;
       // Use the token directly for the profile request
       const profileRes = await api.get('/api/users/profile', {
