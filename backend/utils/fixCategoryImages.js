@@ -14,7 +14,7 @@ const CATEGORY_PLACEHOLDERS = {
 
 const updateCategoryImages = async () => {
   try {
-    console.log('🔧 Updating category images...');
+    // ...existing code...
     
     const categories = await Category.find({});
     let updatedCount = 0;
@@ -41,11 +41,11 @@ const updateCategoryImages = async () => {
         });
         
         updatedCount++;
-        console.log(`✅ Updated category: ${category.name}`);
+      // ...existing code...
       }
     }
     
-    console.log(`🎉 Successfully updated ${updatedCount} categories with placeholder images`);
+    // ...existing code...
     return updatedCount;
     
   } catch (error) {
@@ -56,7 +56,7 @@ const updateCategoryImages = async () => {
 
 const createDefaultCategories = async () => {
   try {
-    console.log('🛍️ Creating default categories...');
+    // ...existing code...
     
     const defaultCategories = [
       {
@@ -85,13 +85,13 @@ const createDefaultCategories = async () => {
       const existingCategory = await Category.findOne({ name: categoryData.name });
       if (!existingCategory) {
         await Category.create(categoryData);
-        console.log(`✅ Created category: ${categoryData.name}`);
+      // ...existing code...
       } else {
-        console.log(`⚠️ Category already exists: ${categoryData.name}`);
+      // ...existing code...
       }
     }
     
-    console.log('🎉 Default categories created successfully!');
+    // ...existing code...
     
   } catch (error) {
     console.error('❌ Error creating default categories:', error);

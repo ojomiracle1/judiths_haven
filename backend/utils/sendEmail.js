@@ -2,12 +2,6 @@ const nodemailer = require('nodemailer');
 
 const sendEmail = async (options) => {
   // Comment out debug logs for production safety
-  // console.log('Attempting to send email...');
-  // console.log('Email Host:', process.env.EMAIL_HOST);
-  // console.log('Email Port:', process.env.EMAIL_PORT);
-  // console.log('Email User:', process.env.EMAIL_USER);
-  // console.log('Email Secure:', process.env.EMAIL_SECURE);
-  // console.log('Email From Name:', process.env.EMAIL_FROM_NAME);
 
   // Create a transporter
   const transporter = nodemailer.createTransport({
@@ -35,7 +29,6 @@ const sendEmail = async (options) => {
   // Send email
   try {
     await transporter.sendMail(mailOptions);
-    // console.log('Email sent successfully');
   } catch (error) {
     console.error('Error sending email:', error);
     throw new Error('Email could not be sent');

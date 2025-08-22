@@ -35,7 +35,7 @@ const getRandomPlaceholder = () => {
 
 const updateProductsWithPlaceholders = async () => {
   try {
-    console.log('🔧 Updating products with placeholder images...');
+  // console.log('🔧 Updating products with placeholder images...');
     
     // Get all products
     const products = await Product.find({}).populate('category');
@@ -80,11 +80,11 @@ const updateProductsWithPlaceholders = async () => {
         });
         
         updatedCount++;
-        console.log(`✅ Updated product: ${product.name}`);
+    // console.log(`✅ Updated product: ${product.name}`);
       }
     }
     
-    console.log(`🎉 Successfully updated ${updatedCount} products with placeholder images`);
+  // console.log(`🎉 Successfully updated ${updatedCount} products with placeholder images`);
     return updatedCount;
     
   } catch (error) {
@@ -95,12 +95,12 @@ const updateProductsWithPlaceholders = async () => {
 
 const createSampleProducts = async () => {
   try {
-    console.log('🛍️ Creating sample products with images...');
+    // console.log('🛍️ Creating sample products with images...');
     
     // Get categories
     const categories = await Category.find({});
     if (categories.length === 0) {
-      console.log('⚠️ No categories found. Please create categories first.');
+      // console.log('⚠️ No categories found. Please create categories first.');
       return;
     }
     
@@ -179,13 +179,13 @@ const createSampleProducts = async () => {
           ...productData,
           user: "507f1f77bcf86cd799439011" // Default admin user ID
         });
-        console.log(`✅ Created product: ${productData.name}`);
+        // console.log(`✅ Created product: ${productData.name}`);
       } else {
-        console.log(`⚠️ Product already exists: ${productData.name}`);
+        // console.log(`⚠️ Product already exists: ${productData.name}`);
       }
     }
     
-    console.log('🎉 Sample products created successfully!');
+    // console.log('🎉 Sample products created successfully!');
     
   } catch (error) {
     console.error('❌ Error creating sample products:', error);
