@@ -153,6 +153,7 @@ app.use(mongoSanitize());
 const allowedOrigins = [
   'https://judiths-haven-frontend.onrender.com',
   'http://localhost:3000',
+  'https://judiths-haven-frontend.onrender.com/',
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
@@ -160,8 +161,9 @@ const corsOptions = {
   origin: function (origin, callback) {
     // Allow requests with no origin (like mobile apps, curl, etc.)
     if (!origin) return callback(null, true);
-    // Allow if origin matches any allowedOrigins or regex from env
-    if (allowedOrigins.includes(origin)) {
+    // Normalize origin (remove trailing slash)
+    const normalizedOrigin = origin.replace(/\/$/, '');
+    if (allowedOrigins.map(o => o.replace(/\/$/, '')).includes(normalizedOrigin)) {
       return callback(null, true);
     }
     // Support regex from env (CORS_ORIGIN_REGEX)
