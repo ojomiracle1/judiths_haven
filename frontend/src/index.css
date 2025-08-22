@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  background: linear-gradient(135deg, #f8fafc 0%, #fdf6fb 100%);
+  color: #22223b;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: linear-gradient(135deg, #f8fafc 0%, #fdf6fb 100%);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* Glassmorphism and premium UI utility classes for Tailwind (add to tailwind.config.js if using JIT mode)
+   If not using JIT, add these as @layer components in a CSS file. */
+
+@layer components {
+  .input-premium {
+    @apply w-full rounded-xl border border-pink-100 bg-white shadow-inner px-4 py-2 text-base text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:border-pink-300 transition-all duration-200 backdrop-blur-md;
+  }
+  .btn-gradient {
+    @apply bg-gradient-to-r from-pink-200 to-blue-200 text-primary-700 font-semibold rounded-xl shadow-lg px-6 py-2 transition-all duration-200 hover:from-pink-300 hover:to-blue-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-pink-200 focus:ring-offset-2;
+  }
+  .glass-card {
+    @apply bg-white/80 backdrop-blur-md border border-pink-100 shadow-xl rounded-2xl;
+  }
+  .card-haven {
+    @apply bg-white rounded-2xl shadow-lg border border-pink-100 p-6 mb-6 transition-all duration-200 hover:shadow-2xl hover:border-blue-100;
+  }
+  .haven-badge {
+    @apply inline-block px-3 py-1 rounded-full bg-pink-100 text-pink-700 text-xs font-semibold shadow;
+  }
+  .haven-section {
+    @apply bg-gradient-to-br from-pink-50 via-white to-blue-50 rounded-2xl p-8 mb-8 shadow-md;
+  }
+}

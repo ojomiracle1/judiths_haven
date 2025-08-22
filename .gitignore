@@ -1,0 +1,50 @@
+node_modules/
+# Environment files
+.env
+.env.*
+backend/.env
+frontend/.env
+backend/.env.*
+frontend/.env.*
+
+# Log files
+*.log
+logs/
+backend/logs/
+frontend/logs/
+
+# Build output
+build/
+frontend/build/
+dist/
+frontend/dist/
+
+# Dependency lock files (optional, keep if you want reproducible installs)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# OS generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# VSCode settings
+.vscode/
+
+# Uploads and generated assets
+uploads/
+backend/uploads/
+frontend/uploads/
+
+# Cypress and test output
+cypress/videos/
+cypress/screenshots/
+coverage/
+frontend/coverage/
+backend/coverage/
+
+# Misc
+*.tgz
+*.swp
+*.swo

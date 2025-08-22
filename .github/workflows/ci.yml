@@ -1,0 +1,46 @@
+# CI workflow for automated quality checks
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    services:
+      mongo:
+        image: mongo:4.4
+        ports:
+          - 27017:27017
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: Install backend dependencies
+        run: |
+          cd backend
+          npm install
+      - name: Run backend tests
+        run: |
+          cd backend
+          npm test
+      - name: Install frontend dependencies
+        run: |
+          cd frontend
+          npm install
+      - name: Run frontend tests
+        run: |
+          cd frontend
+          npm test
+      - name: Run Cypress E2E tests
+        uses: cypress-io/github-action@v6
+        with:
+          start: npm start --prefix frontend
+          wait-on: 'http://localhost:3000'
+          working-directory: frontend
+          browser: chrome 
