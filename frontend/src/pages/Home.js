@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getProducts } from '../features/product/productSlice';
 import { getCategories } from '../features/category/categorySlice';
 import { ArrowRightIcon, MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import api from '../utils/axios';
 import NewsletterSignup from '../components/NewsletterSignup';
 import RecommendedProducts from '../components/RecommendedProducts';
 import RecentlyViewedProducts from '../components/RecentlyViewedProducts';
@@ -16,8 +15,9 @@ import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { products, isLoading: productsLoading } = useSelector((state) => state.product);
-  const { categories, isLoading: categoriesLoading } = useSelector((state) => state.category);
+  const { products, isLoading: productsLoading, isError: productsError, message: productsMessage } = useSelector((state) => state.product);
+  const { categories, isLoading: categoriesLoading, isError: categoriesError, message: categoriesMessage } = useSelector((state) => state.category);
+  const [loadTimeout, setLoadTimeout] = useState(false);
   // const [topRated, setTopRated] = useState([]); // Removed unused variable to fix build warning
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
@@ -25,7 +25,9 @@ const Home = () => {
   useEffect(() => {
     dispatch(getProducts());
     dispatch(getCategories());
-    // api.get('/api/products/top/rated').then(res => setTopRated(res.data)).catch(() => {}); // Removed unused API call
+    // Set a timeout to prevent infinite loading
+    const timeout = setTimeout(() => setLoadTimeout(true), 15000); // 15 seconds
+    return () => clearTimeout(timeout);
   }, [dispatch]);
 
   useEffect(() => {
@@ -41,9 +43,24 @@ const Home = () => {
   };
 
   if (productsLoading || categoriesLoading) {
+    if (loadTimeout) {
+      return (
+        <div className="flex flex-col justify-center items-center min-h-screen">
+          <div className="text-red-600 font-bold text-lg mb-4">The site is taking too long to load. Please try again later.</div>
+        </div>
+      );
+    }
     return (
       <div className="flex justify-center items-center min-h-screen">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-pink-500"></div>
+      </div>
+    );
+  }
+  if (productsError || categoriesError) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen">
+        <div className="text-red-600 font-bold text-lg mb-4">Failed to load products or categories.</div>
+        <div className="text-gray-500">{productsMessage || categoriesMessage}</div>
       </div>
     );
   }
