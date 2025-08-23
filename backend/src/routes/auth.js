@@ -24,6 +24,8 @@ router.post(
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
   ],
   async (req, res) => {
+    // Log incoming registration data for debugging
+    console.log('Register request:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
