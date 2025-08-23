@@ -1,6 +1,6 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, useLocation } from 'react-router-dom';
-import { ToastContainer } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { HelmetProvider } from 'react-helmet-async';
 
@@ -55,6 +55,11 @@ const ScrollToTop = () => {
   }, [pathname]);
   return null;
 };
+
+// Expose toast globally for axios interceptor
+if (typeof window !== 'undefined') {
+  window.toast = toast;
+}
 
 function App() {
   const location = useLocation();
