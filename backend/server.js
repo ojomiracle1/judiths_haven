@@ -97,16 +97,21 @@ app.use(cookieParser());
 
 // CSRF Protection (enabled for non-API, non-GET/HEAD/OPTIONS requests)
 if (process.env.NODE_ENV === 'production') {
-  app.use(
-    csurf({
+  // Skip CSRF for API auth and user routes
+  app.use((req, res, next) => {
+    const skipCsrf =
+      req.path.startsWith('/api/auth') ||
+      req.path.startsWith('/api/users');
+    if (skipCsrf) return next();
+    return csurf({
       cookie: {
         httpOnly: true,
         secure: true,
         sameSite: 'strict',
       },
       ignoreMethods: ['GET', 'HEAD', 'OPTIONS'],
-    })
-  );
+    })(req, res, next);
+  });
   // Expose CSRF token for frontend (if needed)
   app.use((req, res, next) => {
     if (req.csrfToken) {
