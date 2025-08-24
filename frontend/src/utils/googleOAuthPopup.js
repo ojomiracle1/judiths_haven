@@ -16,7 +16,7 @@ export function openGoogleOAuthPopup({ url, onSuccess, onError }) {
   // Listen for message from popup
   function handleMessage(event) {
     // Only accept messages from our backend origin
-    const backendUrl = process.env.NODE_ENV === 'production' ? 'https://judiths-haven-backend.onrender.com' : process.env.REACT_APP_API_URL?.replace('/api', '') || 'http://localhost:5000';
+  const backendUrl = window.location.origin;
     if (event.origin !== backendUrl) return;
     if (event.data && event.data.type === 'google-auth-success') {
       onSuccess(event.data.payload);

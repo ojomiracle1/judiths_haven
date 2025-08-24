@@ -12,10 +12,12 @@ const sendEmail = async (options) => {
       user: process.env.EMAIL_USER,
       pass: process.env.EMAIL_PASS
     },
-    tls: {
-      // Do not reject self-signed certificates. DANGER: Do NOT use in production!
-      rejectUnauthorized: false
-    }
+    ...(process.env.NODE_ENV !== 'production' ? {
+      tls: {
+        // Allow self-signed certs only in development
+        rejectUnauthorized: false
+      }
+    } : {})
   });
 
   // Define email options

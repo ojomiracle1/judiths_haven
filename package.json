@@ -4,8 +4,8 @@
   "description": "Judiths Haven e-commerce website",
   "main": "index.js",
   "scripts": {
-    "start": "node backend/server.js",
     "build": "cd frontend && npm install && npm run build",
+    "start": "npm run build && node backend/server.js",
     "prepare": "husky install"
   },
   "dependencies": {

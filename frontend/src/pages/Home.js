@@ -8,6 +8,7 @@ import NewsletterSignup from '../components/NewsletterSignup';
 import RecommendedProducts from '../components/RecommendedProducts';
 import RecentlyViewedProducts from '../components/RecentlyViewedProducts';
 import { addToCart } from '../features/cart/cartSlice.backend';
+import { toast } from 'react-toastify';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { useTranslation } from 'react-i18next';
@@ -39,7 +40,23 @@ const Home = () => {
 
   const handleAddToCart = async (e, product) => {
     e.preventDefault();
-    await dispatch(addToCart({ id: product._id, qty: 1 })).unwrap();
+    try {
+      await dispatch(addToCart({ id: product._id, qty: 1 })).unwrap();
+      toast.success('Added to cart!');
+    } catch (err) {
+      // Try to parse known backend error messages
+      let msg = err?.message || err;
+      if (typeof err === 'string') msg = err;
+      if (msg?.toLowerCase().includes('not authorized')) {
+        toast.error('You must be logged in to add to cart.');
+      } else if (msg?.toLowerCase().includes('not found')) {
+        toast.error('Product not found.');
+      } else if (msg?.toLowerCase().includes('out of stock')) {
+        toast.error('Product is out of stock.');
+      } else {
+        toast.error(msg || 'Failed to add to cart. Please try again.');
+      }
+    }
   };
 
   if (productsLoading || categoriesLoading) {
@@ -66,7 +83,17 @@ const Home = () => {
   }
 
   // Get token from localStorage (or auth state if available)
-  const token = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')).token : '';
+  const userObj = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+  const token = userObj?.token || '';
+  const isLoggedIn = Boolean(token);
+
+  // Helper for login prompt
+  const LoginPrompt = () => (
+    <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-xl p-4 mb-8 text-center">
+      <span className="font-semibold">You must be logged in to use this feature.</span> <Link to="/login" className="text-blue-600 underline">Login</Link>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-blue-50 text-gray-900 font-sans">
       <Helmet>
@@ -150,12 +177,22 @@ const Home = () => {
                     <h3 className="text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-2">
                       <span className="text-lg font-bold text-primary-600">₦{product.price}</span>
-                      <button
-                        className="ml-0 sm:ml-auto btn-gradient w-full sm:w-auto font-semibold"
-                        onClick={e => handleAddToCart(e, product)}
-                      >
-                        Add to Cart
-                      </button>
+                      {isLoggedIn ? (
+                        <button
+                          className="ml-0 sm:ml-auto btn-gradient w-full sm:w-auto font-semibold"
+                          onClick={async e => {
+                            try {
+                              await handleAddToCart(e, product);
+                            } catch (err) {
+                              alert('Failed to add to cart. Please try again.');
+                            }
+                          }}
+                        >
+                          Add to Cart
+                        </button>
+                      ) : (
+                        <LoginPrompt />
+                      )}
                     </div>
                   </div>
                 </div>
@@ -164,11 +201,11 @@ const Home = () => {
           </div>
         </section>
 
-        {/* Recommended Products Section */}
-        <RecommendedProducts token={token} />
+  {/* Recommended Products Section */}
+  {isLoggedIn ? <RecommendedProducts token={token} /> : <LoginPrompt />}
 
-        {/* Recently Viewed Products Section */}
-        <RecentlyViewedProducts token={token} />
+  {/* Recently Viewed Products Section */}
+  {isLoggedIn ? <RecentlyViewedProducts token={token} /> : <LoginPrompt />}
 
         {/* Categories Section */}
         <section data-aos="fade-up" data-aos-delay="400">

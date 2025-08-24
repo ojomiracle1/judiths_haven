@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || '/api', // Use env variable or fallback to proxy path
+  baseURL: '/api', // Always use relative path for unified deployment
   headers: {
     'Content-Type': 'application/json',
   },

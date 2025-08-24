@@ -12,7 +12,7 @@ const compression = require('compression');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const csurf = require('csurf');
-const cors = require('cors');
+// const cors = require('cors');
 const mongoose = require('mongoose');
 const path = require('path');
 const connectDB = require('./config/db');
@@ -75,11 +75,11 @@ app.use(helmet({
     ? {
         directives: {
           defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", 'https://judiths-haven-frontend.onrender.com', 'https://apis.google.com'],
-          styleSrc: ["'self'", 'https://fonts.googleapis.com', 'https://judiths-haven-frontend.onrender.com', "'unsafe-inline'"],
-          imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com', 'https://judiths-haven-frontend.onrender.com'],
+          scriptSrc: ["'self'", 'https://apis.google.com'],
+          styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+          imgSrc: ["'self'", 'data:', 'https://res.cloudinary.com'],
           fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-          connectSrc: ["'self'", 'https://judiths-haven-frontend.onrender.com', 'https://judiths-haven-backend.onrender.com', 'wss://judiths-haven-backend.onrender.com'],
+          connectSrc: ["'self'", 'wss://judiths-haven-backend.onrender.com'],
           objectSrc: ["'none'"],
           frameSrc: ["'self'", 'https://accounts.google.com'],
           upgradeInsecureRequests: [],
@@ -156,42 +156,7 @@ app.use(mongoSanitization); // MongoDB injection protection
 app.use(sanitizeInput); // Input sanitization
 app.use(mongoSanitize());
 
-// CORS configuration using cors package
-// More robust CORS configuration
-const allowedOrigins = [
-  'https://judiths-haven-frontend.onrender.com',
-  'http://localhost:3000',
-  'https://judiths-haven-frontend.onrender.com/',
-  process.env.FRONTEND_URL
-].filter(Boolean);
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    // Normalize origin (remove trailing slash)
-    const normalizedOrigin = origin.replace(/\/$/, '');
-    if (allowedOrigins.map(o => o.replace(/\/$/, '')).includes(normalizedOrigin)) {
-      return callback(null, true);
-    }
-    // Support regex from env (CORS_ORIGIN_REGEX)
-    if (process.env.CORS_ORIGIN_REGEX) {
-      try {
-        const regex = new RegExp(process.env.CORS_ORIGIN_REGEX);
-        if (regex.test(origin)) {
-          return callback(null, true);
-        }
-      } catch (e) {
-        // Invalid regex, ignore
-      }
-    }
-    return callback(new Error('Not allowed by CORS'));
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Origin', 'X-Requested-With', 'Content-Type', 'Accept', 'Authorization']
-};
-app.use(cors(corsOptions));
+// CORS removed for unified deployment (same-origin)
 
 // Logging middleware
 app.use(morgan('combined', {
@@ -292,6 +257,16 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
     }
   }
 }));
+
+// Serve React static files
+const clientBuildPath = path.join(__dirname, '../frontend/build');
+app.use(express.static(clientBuildPath));
+
+// For any non-API, non-upload route, serve React's index.html (client-side routing)
+app.get('*', (req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) return next();
+  res.sendFile(path.join(clientBuildPath, 'index.html'));
+});
 
 // 404 handler - must be before error handler
 app.use(notFound);

@@ -28,6 +28,14 @@ router.post(
     console.log('Register request:', req.body);
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
+      // Check for password validation error and customize message
+      const passwordError = errors.array().find(e => e.param === 'password');
+      if (passwordError) {
+        return res.status(400).json({
+          message: 'Password must be at least 8 characters and include at least one uppercase letter, one lowercase letter, one number, and one special character.'
+        });
+      }
+      // Other validation errors
       return res.status(400).json({ errors: errors.array() });
     }
     try {
