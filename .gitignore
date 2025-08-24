@@ -15,7 +15,6 @@ frontend/logs/
 
 # Build output
 build/
-frontend/build/
 dist/
 frontend/dist/
 
