@@ -19,7 +19,7 @@ const AdminContactMessages = () => {
     }
     const fetchMessages = async () => {
       try {
-        const res = await fetch('/api/contact', {
+  const res = await fetch('/contact', {
           headers: { Authorization: `Bearer ${user.token}` },
         });
         const data = await res.json();

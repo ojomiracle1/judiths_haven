@@ -5,7 +5,7 @@ const CategorySidebar = () => {
   const [categories, setCategories] = useState([]);
 
   useEffect(() => {
-    fetch('/api/categories')
+  fetch('/categories')
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);

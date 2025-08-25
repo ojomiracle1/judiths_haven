@@ -107,7 +107,7 @@ const Profile = () => {
     formData.append('image', file);
     setUploading(true);
     try {
-      const res = await fetch('/api/upload/profile', {
+  const res = await fetch('/upload/profile', {
         method: 'POST',
         body: formData,
         headers: { Authorization: `Bearer ${user.token}` },

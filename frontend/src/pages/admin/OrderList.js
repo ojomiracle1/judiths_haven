@@ -113,7 +113,7 @@ const OrderList = () => {
     if (!window.confirm(`Delete ${selected.length} orders? This cannot be undone!`)) return;
     setBulkLoading(true);
     try {
-      await axios.post('/api/orders/bulk-delete', { orderIds: selected });
+  await axios.post('/orders/bulk-delete', { orderIds: selected });
       toast.success('Orders deleted');
       dispatch(getOrders({ page, limit }));
       setSelected([]);
@@ -129,7 +129,7 @@ const OrderList = () => {
     e.preventDefault();
     setBulkLoading(true);
     try {
-      await axios.put('/api/orders/bulk-update', {
+  await axios.put('/orders/bulk-update', {
         orderIds: selected,
         update: bulkUpdateFields,
       });

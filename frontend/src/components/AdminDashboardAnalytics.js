@@ -10,7 +10,7 @@ function AdminDashboardAnalytics({ token }) {
   const { t } = useTranslation();
 
   useEffect(() => {
-    axios.get('/api/admin/analytics', {
+  axios.get('/admin/analytics', {
       headers: { Authorization: `Bearer ${token}` }
     })
     .then(res => setStats(res.data))

@@ -18,7 +18,7 @@ const RecommendedPage = () => {
   const [filter, setFilter] = useState(''); // filter by name substring
 
   useEffect(() => {
-    axios.get('/api/recommendations', {
+  axios.get('/recommendations', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data))

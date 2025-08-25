@@ -9,7 +9,7 @@ function RecentlyViewedProducts({ token }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('/api/recentlyViewed', {
+  axios.get('/recentlyViewed', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data.products || []))

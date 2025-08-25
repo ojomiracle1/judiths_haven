@@ -31,7 +31,7 @@ const NotificationBell = () => {
       getToken(messaging, { vapidKey })
         .then((currentToken) => {
           if (currentToken) {
-            fetch('/api/device-token', {
+            fetch('/device-token', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',

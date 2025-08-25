@@ -18,7 +18,7 @@ const AdminAuditLogs = () => {
     try {
       const params = { page, limit, ...filters };
       Object.keys(params).forEach((k) => (params[k] === '' ? delete params[k] : null));
-      const res = await axios.get('/api/audit-logs', { params });
+  const res = await axios.get('/audit-logs', { params });
       setLogs(res.data.logs);
       setPages(res.data.pages);
       setTotal(res.data.total);

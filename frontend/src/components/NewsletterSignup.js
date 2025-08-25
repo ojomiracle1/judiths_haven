@@ -13,7 +13,7 @@ const NewsletterSignup = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await axios.post('/api/newsletter/subscribe', { email });
+  const res = await axios.post('/newsletter/subscribe', { email });
       setMessage(res.data.message);
       setEmail('');
     } catch (err) {

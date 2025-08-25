@@ -2,17 +2,17 @@ import axios from '../../utils/axios';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 export const fetchWishlist = createAsyncThunk('wishlist/fetch', async (_, thunkAPI) => {
-  const { data } = await axios.get('/api/wishlist');
+  const { data } = await axios.get('/wishlist');
   return data.products || [];
 });
 
 export const addToWishlist = createAsyncThunk('wishlist/add', async (productId, thunkAPI) => {
-  const { data } = await axios.post('/api/wishlist/add', { productId });
+  const { data } = await axios.post('/wishlist/add', { productId });
   return data.products;
 });
 
 export const removeFromWishlist = createAsyncThunk('wishlist/remove', async (productId, thunkAPI) => {
-  const { data } = await axios.post('/api/wishlist/remove', { productId });
+  const { data } = await axios.post('/wishlist/remove', { productId });
   return data.products;
 });
 

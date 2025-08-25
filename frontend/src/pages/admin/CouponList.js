@@ -14,7 +14,7 @@ const CouponList = () => {
     setLoading(true);
     setError('');
     try {
-      const res = await fetch('/api/coupons', {
+  const res = await fetch('/coupons', {
         headers: { Authorization: `Bearer ${user?.token}` },
       });
       if (!res.ok) throw new Error('Failed to fetch coupons');
@@ -42,7 +42,7 @@ const CouponList = () => {
     setSuccess('');
     setError('');
     try {
-      const res = await fetch('/api/coupons', {
+  const res = await fetch('/coupons', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -35,7 +35,7 @@ const RecentlyViewedPage = () => {
   const paginatedProducts = filteredProducts.slice((page - 1) * pageSize, page * pageSize);
 
   useEffect(() => {
-    axios.get('/api/recentlyViewed', {
+  axios.get('/recentlyViewed', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data.products || []))

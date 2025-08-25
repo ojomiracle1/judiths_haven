@@ -61,7 +61,7 @@ const UserList = () => {
     if (!window.confirm(`Delete ${selected.length} users? This cannot be undone!`)) return;
     setBulkLoading(true);
     try {
-      await axios.post('/api/users/bulk-delete', { userIds: selected });
+  await axios.post('/users/bulk-delete', { userIds: selected });
       toast.success('Users deleted');
       dispatch(getUsers());
       setSelected([]);
@@ -77,7 +77,7 @@ const UserList = () => {
     e.preventDefault();
     setBulkLoading(true);
     try {
-      await axios.put('/api/users/bulk-update', {
+  await axios.put('/users/bulk-update', {
         userIds: selected,
         update: bulkUpdateFields,
       });

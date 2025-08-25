@@ -9,7 +9,7 @@ function RecommendedProducts({ token }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('/api/recommendations', {
+  axios.get('/recommendations', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data))

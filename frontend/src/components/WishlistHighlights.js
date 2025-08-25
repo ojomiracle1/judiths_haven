@@ -7,7 +7,7 @@ function WishlistHighlights({ token }) {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    axios.get('/api/admin/analytics', {
+  axios.get('/admin/analytics', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => setProducts(res.data.mostWishedProducts || []))

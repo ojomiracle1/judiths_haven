@@ -88,7 +88,7 @@ const CategoryEdit = () => {
     setUploading(true);
 
     try {
-      const response = await fetch('/api/upload', {
+  const response = await fetch('/upload', {
         method: 'POST',
         body: formData,
       });
