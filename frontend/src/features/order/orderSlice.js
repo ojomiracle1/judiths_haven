@@ -16,7 +16,7 @@ export const createOrder = createAsyncThunk(
   'order/create',
   async (orderData, thunkAPI) => {
     try {
-      const response = await api.post('/api/orders', orderData);
+  const response = await api.post('/orders', orderData);
       return response.data;
     } catch (error) {
       const message =
@@ -46,7 +46,7 @@ export const getMyOrders = createAsyncThunk(
   'order/getMyOrders',
   async (_, thunkAPI) => {
     try {
-      const response = await api.get('/api/orders/myorders');
+  const response = await api.get('/orders/myorders');
       return response.data;
     } catch (error) {
       const message =

@@ -69,7 +69,7 @@ const AdminDashboard = () => {
       setLowStockLoading(true);
       setLowStockError('');
       try {
-        const res = await api.get('/api/products/low-stock', {
+  const res = await api.get('/products/low-stock', {
           headers: { Authorization: `Bearer ${user?.token}` },
         });
         setLowStockProducts(res.data.products || []);
@@ -98,7 +98,7 @@ const AdminDashboard = () => {
         setYearlyTotals(totalsRes.data || { totalSales: 0, totalOrders: 0 });
 
         // Fetch users and group by month
-        const usersRes = await api.get('/api/users');
+  const usersRes = await api.get('/users');
         const usersByMonth = Array(12).fill(0);
         usersRes.data.forEach(u => {
           const d = new Date(u.createdAt);

@@ -22,7 +22,7 @@ export const getUsers = createAsyncThunk(
   async (_, thunkAPI) => {
     try {
       const token = getToken(thunkAPI);
-      const response = await api.get('/api/users', {
+  const response = await api.get('/users', {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;
@@ -58,7 +58,7 @@ export const createUser = createAsyncThunk(
   async (userData, thunkAPI) => {
     try {
       const token = getToken(thunkAPI);
-      const response = await api.post('/api/users', userData, {
+  const response = await api.post('/users', userData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;

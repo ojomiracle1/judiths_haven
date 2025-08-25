@@ -115,7 +115,7 @@ const ProductForm = () => {
           },
         };
 
-        const { data } = await api.post('/api/upload', formData, config);
+  const { data } = await api.post('/upload', formData, config);
         return data.path;
       });
 

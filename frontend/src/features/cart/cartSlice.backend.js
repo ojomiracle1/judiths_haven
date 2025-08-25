@@ -15,7 +15,7 @@ export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async (_, thunkAPI) => {
     try {
-      const { data } = await api.get('/api/cart');
+  const { data } = await api.get('/cart');
       // Map backend items to frontend format
       return (data?.items || []).map(item => ({
         product: item.product._id,
@@ -37,9 +37,9 @@ export const addToCart = createAsyncThunk(
   'cart/addToCart',
   async ({ id, qty }, thunkAPI) => {
     try {
-      await api.post('/api/cart/add', { productId: id, quantity: qty });
+  await api.post('/cart/add', { productId: id, quantity: qty });
       // Refetch cart after add
-      const { data } = await api.get('/api/cart');
+  const { data } = await api.get('/cart');
       return (data?.items || []).map(item => ({
         product: item.product._id,
         name: item.product.name,
@@ -60,8 +60,8 @@ export const updateCartItemQuantityAsync = createAsyncThunk(
   'cart/updateCartItemQuantityAsync',
   async ({ id, qty }, thunkAPI) => {
     try {
-      await api.put('/api/cart/update', { productId: id, quantity: qty });
-      const { data } = await api.get('/api/cart');
+  await api.put('/cart/update', { productId: id, quantity: qty });
+  const { data } = await api.get('/cart');
       return (data?.items || []).map(item => ({
         product: item.product._id,
         name: item.product.name,
@@ -82,8 +82,8 @@ export const removeFromCartAsync = createAsyncThunk(
   'cart/removeFromCartAsync',
   async (id, thunkAPI) => {
     try {
-      await api.delete('/api/cart/remove', { data: { productId: id } });
-      const { data } = await api.get('/api/cart');
+  await api.delete('/cart/remove', { data: { productId: id } });
+  const { data } = await api.get('/cart');
       return (data?.items || []).map(item => ({
         product: item.product._id,
         name: item.product.name,
@@ -104,7 +104,7 @@ export const clearCartAsync = createAsyncThunk(
   'cart/clearCartAsync',
   async (_, thunkAPI) => {
     try {
-      await api.delete('/api/cart/clear');
+  await api.delete('/cart/clear');
       return [];
     } catch (error) {
       const message = error.response?.data?.message || error.message || error.toString();

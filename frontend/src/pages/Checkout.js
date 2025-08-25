@@ -65,7 +65,7 @@ const Checkout = () => {
         setShippingLoading(true);
         setShippingError('');
         try {
-          const res = await api.post('/api/shipping/calculate', {
+          const res = await api.post('/shipping/calculate', {
             address,
             cartItems,
           });
@@ -105,7 +105,7 @@ const Checkout = () => {
     setCouponError('');
     setCouponInfo(null);
     try {
-      const res = await api.post('/api/coupons/validate', { code: couponCode });
+  const res = await api.post('/coupons/validate', { code: couponCode });
       setCouponInfo(res.data.coupon);
     } catch (err) {
       setCouponError(err.response?.data?.message || 'Invalid coupon');

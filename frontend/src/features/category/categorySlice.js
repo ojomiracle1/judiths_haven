@@ -20,7 +20,7 @@ export const getCategories = createAsyncThunk(
   'category/getCategories',
   async (_, thunkAPI) => {
     try {
-      const response = await api.get('/api/categories');
+  const response = await api.get('/categories');
       return response.data;
     } catch (error) {
       const message =
@@ -51,7 +51,7 @@ export const createCategory = createAsyncThunk(
   async (categoryData, thunkAPI) => {
     try {
       const token = getToken(thunkAPI);
-      const response = await api.post('/api/categories', categoryData, {
+  const response = await api.post('/categories', categoryData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       return response.data;

@@ -55,7 +55,7 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData, thunkAPI) => {
     try {
-  const response = await api.post('/api/auth/register', userData);
+  const response = await api.post('/auth/register', userData);
       const normalized = normalizeUser(response.data);
       localStorage.setItem('user', JSON.stringify(normalized));
       return normalized;
@@ -72,10 +72,10 @@ export const login = createAsyncThunk(
   'auth/login',
   async (userData, thunkAPI) => {
     try {
-  const response = await api.post('/api/auth/login', userData);
+  const response = await api.post('/auth/login', userData);
       const token = response.data.token;
       // Use the token directly for the profile request
-      const profileRes = await api.get('/api/users/profile', {
+  const profileRes = await api.get('/users/profile', {
         headers: { Authorization: `Bearer ${token}` }
       });
       const normalized = normalizeUser({ ...response.data, ...profileRes.data });
@@ -129,7 +129,7 @@ export const updateProfileImage = createAsyncThunk(
   'auth/updateProfileImage',
   async (imageUrl, thunkAPI) => {
     try {
-      const response = await api.put(`${API_URL}/profile-image`, { imageUrl });
+  const response = await api.put(`${API_URL}/profile-image`, { imageUrl });
       // Update user in localStorage
       const updatedUser = {
         ...thunkAPI.getState().auth.user,
@@ -152,7 +152,7 @@ export const resetPassword = createAsyncThunk(
   'auth/resetPassword',
   async (email, thunkAPI) => {
     try {
-      const response = await api.post(`${API_URL}/forgot-password`, { email });
+  const response = await api.post(`${API_URL}/forgot-password`, { email });
       return response.data;
     } catch (error) {
       const message =
