@@ -19,7 +19,7 @@ dist/
 frontend/dist/
 
 # Dependency lock files (optional, keep if you want reproducible installs)
-package-lock.json
+# package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
