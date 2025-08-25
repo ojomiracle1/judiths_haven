@@ -3,7 +3,7 @@ const Order = require('../../models/orderModel');
 const User = require('../../models/userModel');
 const Product = require('../../models/productModel');
 const router = express.Router();
-const { protect, admin } = require('../middleware/auth');
+const { protect, admin } = require('../../middleware/authMiddleware');
 
 // GET /api/admin/analytics
 router.get('/', protect, admin, async (req, res) => {
