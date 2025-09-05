@@ -16,16 +16,16 @@ import { Helmet } from 'react-helmet-async';
 
 const Home = () => {
   const dispatch = useDispatch();
-  const { products, isLoading: productsLoading, isError: productsError, message: productsMessage } = useSelector((state) => state.product);
-  const { categories, isLoading: categoriesLoading, isError: categoriesError, message: categoriesMessage } = useSelector((state) => state.category);
+  const { products = [], isLoading: productsLoading, isError: productsError, message: productsMessage } = useSelector((state) => state.product);
+  const { categories = [], isLoading: categoriesLoading, isError: categoriesError, message: categoriesMessage } = useSelector((state) => state.category);
   const [loadTimeout, setLoadTimeout] = useState(false);
   // const [topRated, setTopRated] = useState([]); // Removed unused variable to fix build warning
   const [search, setSearch] = useState('');
   const { t } = useTranslation();
 
   useEffect(() => {
-    dispatch(getProducts());
-    dispatch(getCategories());
+  dispatch(getProducts());
+  dispatch(getCategories());
     // Set a timeout to prevent infinite loading
     const timeout = setTimeout(() => setLoadTimeout(true), 15000); // 15 seconds
     return () => clearTimeout(timeout);
@@ -36,7 +36,7 @@ const Home = () => {
   }, []);
 
   // Get featured products (first 4 products)
-  const featuredProducts = products.slice(0, 4);
+    const featuredProducts = Array.isArray(products) ? products.slice(0, 4) : [];
 
   const handleAddToCart = async (e, product) => {
     e.preventDefault();
@@ -153,51 +153,53 @@ const Home = () => {
             </Link>
           </div>
           <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product, idx) => (
-              <Link
-                key={product._id}
-                to={`/product/${product._id}`}
-                className="group"
-                data-aos="zoom-in"
-                data-aos-delay={100 + idx * 100}
-              >
-                <div className="relative rounded-2xl overflow-hidden bg-white/90 shadow-card hover:shadow-2xl hover:scale-[1.035] transition-all duration-300 flex flex-col backdrop-blur-md card-haven animate-fade-in">
-                  <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
-                    <img
-                      src={product.images?.[0] || 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Product'}
-                      alt={product.name}
-                      className="w-full h-48 sm:h-64 object-cover object-center group-hover:opacity-80 transition-all duration-200"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Product';
-                      }}
-                    />
-                  </div>
-                  <div className="p-5 flex-1 flex flex-col justify-between">
-                    <h3 className="text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-2">
-                      <span className="text-lg font-bold text-primary-600">₦{product.price}</span>
-                      {isLoggedIn ? (
-                        <button
-                          className="ml-0 sm:ml-auto btn-gradient w-full sm:w-auto font-semibold"
-                          onClick={async e => {
-                            try {
-                              await handleAddToCart(e, product);
-                            } catch (err) {
-                              alert('Failed to add to cart. Please try again.');
-                            }
-                          }}
-                        >
-                          Add to Cart
-                        </button>
-                      ) : (
-                        <LoginPrompt />
-                      )}
+            {Array.isArray(featuredProducts) && featuredProducts.length > 0 ? (
+              featuredProducts.map((product, idx) => (
+                <Link
+                  key={product._id}
+                  to={`/product/${product._id}`}
+                  className="group"
+                  data-aos="zoom-in"
+                  data-aos-delay={100 + idx * 100}
+                >
+                  <div className="relative rounded-2xl overflow-hidden bg-white/90 shadow-card hover:shadow-2xl hover:scale-[1.035] transition-all duration-300 flex flex-col backdrop-blur-md card-haven animate-fade-in">
+                    <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
+                      <img
+                        src={product.images?.[0] || 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Product'}
+                        alt={product.name}
+                        className="w-full h-48 sm:h-64 object-cover object-center group-hover:opacity-80 transition-all duration-200"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Product';
+                        }}
+                      />
+                    </div>
+                    <div className="p-5 flex-1 flex flex-col justify-between">
+                      <h3 className="text-base font-semibold text-gray-800 line-clamp-2 min-h-[2.5rem]">{product.name}</h3>
+                      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mt-4 gap-2">
+                        <span className="text-lg font-bold text-primary-600">₦{product.price}</span>
+                        {isLoggedIn ? (
+                          <button
+                            className="ml-0 sm:ml-auto btn-gradient w-full sm:w-auto font-semibold"
+                            onClick={async e => {
+                              try {
+                                await handleAddToCart(e, product);
+                              } catch (err) {
+                                alert('Failed to add to cart. Please try again.');
+                              }
+                            }}
+                          >
+                            Add to Cart
+                          </button>
+                        ) : (
+                          <LoginPrompt />
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : null}
           </div>
         </section>
 
@@ -211,34 +213,36 @@ const Home = () => {
         <section data-aos="fade-up" data-aos-delay="400">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">Shop by Category</h2>
           <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {categories.map((category, idx) => (
-              <Link
-                key={category._id}
-                to={`/category/${category._id}`}
-                className="group"
-                data-aos="zoom-in"
-                data-aos-delay={100 + idx * 100}
-              >
-                <div className="relative rounded-2xl overflow-hidden bg-white/90 shadow-card hover:shadow-2xl transition-shadow duration-300 glass-card animate-fade-in">
-                  <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
-                    <img
-                      src={category.image || 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Category'}
-                      alt={category.name}
-                      className="w-full h-64 object-cover object-center group-hover:opacity-75 transition-all duration-200"
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Category';
-                      }}
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-opacity duration-300 rounded-2xl">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <h3 className="text-xl font-bold text-white drop-shadow-lg">{category.name}</h3>
+            {Array.isArray(categories) && categories.length > 0 ? (
+              categories.map((category, idx) => (
+                <Link
+                  key={category._id}
+                  to={`/category/${category._id}`}
+                  className="group"
+                  data-aos="zoom-in"
+                  data-aos-delay={100 + idx * 100}
+                >
+                  <div className="relative rounded-2xl overflow-hidden bg-white/90 shadow-card hover:shadow-2xl transition-shadow duration-300 glass-card animate-fade-in">
+                    <div className="aspect-w-1 aspect-h-1 w-full overflow-hidden">
+                      <img
+                        src={category.image || 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Category'}
+                        alt={category.name}
+                        className="w-full h-64 object-cover object-center group-hover:opacity-75 transition-all duration-200"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = 'https://via.placeholder.com/400x500/E6E6FA/FFFFFF?text=Category';
+                        }}
+                      />
+                    </div>
+                    <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-opacity duration-300 rounded-2xl">
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <h3 className="text-xl font-bold text-white drop-shadow-lg">{category.name}</h3>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </Link>
-            ))}
+                </Link>
+              ))
+            ) : null}
           </div>
         </section>
 
